@@ -156,7 +156,7 @@ eureka:
 ~~~yml
 spring:
   application:
-    name: customer-service-local
+    name: customer-service
   rabbitmq:
     host: rabbitmq
     port: 5672
