@@ -1,0 +1,59 @@
+version: '3.2'
+services:
+    rabiitmq:
+        image: rabbitmq:3.7.7-management
+        environment:
+          RABBITMQ_DEFAULT_USER: username
+          RABBITMQ_DEFAULT_PASS: password
+        ports:
+          - 15672:15672
+          - 5672:5672
+        restart: always
+    eureka-server:
+        image: coe-eureka
+        environment:
+          SPRING_PROFILES_ACTIVE: docker
+          EUREKA_SERVER_URL: http://localhost
+          PORT: 7070
+        restart: always
+        ports:
+          - 7070:7070
+    config-server:
+        image: config-server
+        entrypoint: /bin/sh
+        command: -c "while !(nc -z eureka-server 7070); do sleep 5; echo 'Waiting for Eureka'; done; java -jar /app.jar"
+        environment:
+          SPRING_PROFILES_ACTIVE: docker
+#          eureka.instance.hostname: config-server
+        restart: always
+        ports:
+          - 7071:7071
+    zuul-server:
+        image: zuul-server
+        entrypoint: /bin/sh
+        command:  -c "while !(wget http://config-server:7071/actuator/health); do sleep 5; echo 'Waiting for Config'; done; java -jar /app.jar"
+        environment:
+          SPRING_PROFILES_ACTIVE: docker
+        restart: always
+        ports:
+          - 7072:7072
+    customer-service:
+        image: customer-service
+        entrypoint: /bin/sh
+        command:  -c "while !(wget http://config-server:7071/actuator/health); do sleep 5; echo 'Waiting for Config'; done; java -jar /app.jar"
+        environment:
+          SPRING_PROFILES_ACTIVE: docker
+ #         eureka.instance.hostname: customer-service
+        restart: always
+        ports:
+          - 8080:8080
+    order-service:
+        image: order-service
+        entrypoint: /bin/sh
+        command:  -c "while !(wget http://config-server:7071/actuator/health); do sleep 5; echo 'Waiting for Config'; done; java -jar /app.jar"
+        environment:
+          SPRING_PROFILES_ACTIVE: docker
+  #        eureka.instance.hostname: order-service
+        restart: always
+        ports:
+          - 7998:7998

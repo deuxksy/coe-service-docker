@@ -1,0 +1,9 @@
+<settings>
+    <servers>
+        <server>
+            <id>act.nexus</id>
+            <username>nxdeapp</username>
+            <password>wearethe1</password>
+        </server>
+    </servers>
+</settings>
